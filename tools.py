@@ -2,6 +2,8 @@ from langchain_community.tools import WikipediaQueryRun, DuckDuckGoSearchRun
 from langchain_community.utilities import WikipediaAPIWrapper
 from langchain.tools import Tool
 from datetime import datetime
+from langchain.memory import ConversationBufferMemory
+
 
 search = DuckDuckGoSearchRun()
 wiki_wrapper = WikipediaAPIWrapper(top_k=5, lang="en")
@@ -29,3 +31,5 @@ save_tool = Tool(
     func=save_to_txt,
     description="Saves structured research data to a text file.",
 )
+
+memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
