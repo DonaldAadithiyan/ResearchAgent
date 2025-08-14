@@ -4,7 +4,7 @@ from langchain.tools import Tool
 from datetime import datetime
 
 search = DuckDuckGoSearchRun()
-wiki_wrapper = WikipediaAPIWrapper()
+wiki_wrapper = WikipediaAPIWrapper(top_k=5, lang="en")
 
 
 wiki_tool = WikipediaQueryRun(api_wrapper=wiki_wrapper)
