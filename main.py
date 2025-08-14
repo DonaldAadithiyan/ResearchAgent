@@ -7,8 +7,11 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from tools import search_tool, wiki_tool, save_tool, memory
 from langchain.schema import HumanMessage
+import pyfiglet 
+from colorama import init, Fore, Style
 
 load_dotenv()
+init(autoreset=True)
 
 class AgentResponse(BaseModel):
     topic: str
@@ -56,10 +59,15 @@ agent_executor = AgentExecutor(
     verbose=True)
 # query = input("Enter your research query: ")
 
-print("Research Agent started. Type 'exit' to quit.")
+# Create big ASCII text
+ascii_banner = pyfiglet.figlet_format("Research Agent")
+print(Fore.CYAN + ascii_banner)
+
+# Add a colored instruction below
+print(Fore.YELLOW + Style.BRIGHT + "Type 'exit' to quit the program.\n")
 
 while True:
-    query = input("\nEnter your research query: ").strip()
+    query = input(Fore.GREEN + "Enter your research query: ").strip()
     if query.lower() == "exit":
         print("Exiting Research Agent.")
         break
