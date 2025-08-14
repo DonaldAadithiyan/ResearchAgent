@@ -5,7 +5,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-# from tools import search_tool, wiki_tool, save_tool
+from tools import search_tool, wiki_tool
 
 load_dotenv()
 
@@ -34,25 +34,27 @@ prompt = ChatPromptTemplate.from_messages(
         ("human", "{query}"),
         ("placeholder", "{agent_scratchpad}"),
     ]
-).partial(format_instructions=parser.get_format_instructions())      
+).partial(format_instructions=parser.get_format_instructions())   
+
+tools = [search_tool]
 
 agent = create_tool_calling_agent(
     llm=llm,
-    tools=[],
+    tools=tools,
     prompt=prompt
 )
 
 agent_executor = AgentExecutor(
     agent=agent,
-    tools=[],
+    tools=tools,
     verbose=True)
-
+query = input("Enter your research query: ")
 raw_response = agent_executor.invoke({
-    "query": "What is the impact of climate change on global agriculture?"})
+    "query": query})
 # print(raw_response)
 
 try:
     structured_response = parser.parse(raw_response.get("output"))
-    print(structured_response.topic)
+    print(structured_response)
 except Exception as e:
     print(f"Error parsing response: {e}")
