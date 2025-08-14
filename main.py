@@ -49,5 +49,10 @@ agent_executor = AgentExecutor(
 
 raw_response = agent_executor.invoke({
     "query": "What is the impact of climate change on global agriculture?"})
-print(raw_response)
-    
+# print(raw_response)
+
+try:
+    structured_response = parser.parse(raw_response.get("output"))
+    print(structured_response.topic)
+except Exception as e:
+    print(f"Error parsing response: {e}")
