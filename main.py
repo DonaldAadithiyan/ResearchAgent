@@ -5,7 +5,7 @@ from langchain_anthropic import ChatAnthropic
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from langchain.agents import create_tool_calling_agent, AgentExecutor
-from tools import search_tool, wiki_tool, save_tool, memory
+from tools import search_tool, wiki_tool, save_tool, memory, analyze_tool
 from langchain.schema import HumanMessage
 import pyfiglet 
 from colorama import init, Fore, Style
@@ -44,7 +44,7 @@ history = memory.load_memory_variables({})["chat_history"]
 
 
 
-tools = [search_tool, wiki_tool, save_tool]
+tools = [search_tool, wiki_tool, save_tool, analyze_tool]
 
 agent = create_tool_calling_agent(
     llm=llm,
@@ -65,12 +65,26 @@ print(Fore.CYAN + ascii_banner)
 
 # Add a colored instruction below
 print(Fore.YELLOW + Style.BRIGHT + "Type 'exit' to quit the program.\n")
+print(Fore.YELLOW + Style.BRIGHT + "Type 'analyze' to analyze a CSV\n")
 
 while True:
     query = input(Fore.GREEN + "Enter your research query: ").strip()
     if query.lower() == "exit":
         print("Exiting Research Agent.")
         break
+    elif query.lower() == "analyze":
+        file_path = input(Fore.GREEN + "Enter the path to the CSV file: ").strip()
+        if not file_path:
+            print(Fore.RED + "No file path provided. Please try again.")
+            continue
+        
+        # Invoke analyze tool
+        try:
+            response = analyze_tool.func(file_path)
+            print(Fore.BLUE + "Analysis Result:\n", response)
+        except Exception as e:
+            print(Fore.RED + f"Error analyzing CSV: {e}")
+        continue
 
     # Get chat history
     history = memory.load_memory_variables({})["chat_history"]

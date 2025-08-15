@@ -9,6 +9,7 @@ beautifulsoup4==4.13.4
 certifi==2025.8.3
 charset-normalizer==3.4.3
 click==8.2.1
+colorama==0.4.6
 dataclasses-json==0.6.7
 distro==1.9.0
 duckduckgo_search==8.1.1
@@ -41,6 +42,7 @@ propcache==0.3.2
 pydantic==2.11.7
 pydantic-settings==2.10.1
 pydantic_core==2.33.2
+pyfiglet==1.0.3
 python-dotenv==1.1.1
 PyYAML==6.0.2
 regex==2025.7.34

@@ -3,6 +3,9 @@ from langchain_community.utilities import WikipediaAPIWrapper
 from langchain.tools import Tool
 from datetime import datetime
 from langchain.memory import ConversationBufferMemory
+import os
+import pandas as pd
+import matplotlib.pyplot as plt
 
 
 search = DuckDuckGoSearchRun()
@@ -33,3 +36,56 @@ save_tool = Tool(
 )
 
 memory = ConversationBufferMemory(memory_key="chat_history", return_messages=True)
+
+def analyze_csv(file_path: str) -> str:
+    """Analyze a time-series CSV file and return trends, anomalies, and summary stats."""
+    if not os.path.exists(file_path):
+        return f"Error: File '{file_path}' not found."
+
+    try:
+        # Load CSV
+        df = pd.read_csv(file_path)
+
+        # Detect time column
+        time_col = None
+        for col in df.columns:
+            try:
+                df[col] = pd.to_datetime(df[col], errors='coerce')
+                if df[col].notnull().sum() > len(df) * 0.5:
+                    time_col = col
+                    break
+            except Exception:
+                continue
+
+        if time_col:
+            df = df.set_index(time_col).sort_index()
+
+        # Basic summary
+        summary = []
+        summary.append(f"Rows: {len(df)}, Columns: {df.columns.tolist()}")
+        summary.append("\nDescriptive stats:\n" + str(df.describe()))
+
+        # Monthly trends if time column found
+        if time_col:
+            monthly_mean = df.resample('M').mean(numeric_only=True)
+            summary.append("\nMonthly mean values (first 5 rows):\n" + str(monthly_mean.head()))
+
+        # Save a trend plot
+        numeric_cols = df.select_dtypes(include='number').columns
+        if len(numeric_cols) > 0:
+            plt.figure(figsize=(10,5))
+            df[numeric_cols[0]].plot(title=f"Trend of {numeric_cols[0]}")
+            plot_path = "trend.png"
+            plt.savefig(plot_path)
+            summary.append(f"\nTrend plot saved to {plot_path}")
+
+        return "\n".join(summary)
+
+    except Exception as e:
+        return f"Error analyzing CSV: {str(e)}"
+    
+analyze_tool = Tool(
+    name="analyze_csv",
+    func=analyze_csv,
+    description="Analyzes a time-series CSV file and returns trends, anomalies, and summary statistics. Input should be the file path of the CSV.",
+)
